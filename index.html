@@ -3,183 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>六级单词助手 - 旗舰完全体</title>
+    <title>六级单词助手 - 臻享丝滑版</title>
     <style>
         /* --- 1. 动态弥散光背景 (满血复活！) --- */
         body { 
-            font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background-color: #f8fafc; 
+            font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; 
+            background-color: #f2f2f7; 
             background-image: 
-                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-                radial-gradient(at 50% 100%, rgba(236, 72, 153, 0.1) 0px, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(94, 92, 230, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(10, 132, 255, 0.12) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(255, 45, 85, 0.08) 0px, transparent 50%);
             background-attachment: fixed; color: #1c1c1e; margin: 0; padding: 0; box-sizing: border-box; overflow-x: hidden; 
             -webkit-font-smoothing: antialiased;
         }
         
         .view { display: none; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px 15px 40px; width: 100%; box-sizing: border-box; }
         .view.active { display: flex; animation: viewFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes viewFadeIn { from { opacity: 0; transform: translateY(15px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes viewFadeIn { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-        /* --- SVG 矢量图标基础样式 --- */
-        .sf-icon { display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: all 0.2s ease; }
+        /* --- SVG 矢量图标 --- */
+        .sf-icon { display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
 
         /* --- 2. 旗舰级毛玻璃卡片 --- */
         .card { 
-            background: rgba(255, 255, 255, 0.85); 
-            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            background: rgba(255, 255, 255, 0.75); 
+            backdrop-filter: blur(30px) saturate(150%); -webkit-backdrop-filter: blur(30px) saturate(150%);
             border-radius: 28px; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.8); 
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06), inset 0 1px 1px rgba(255, 255, 255, 0.8); 
             width: 100%; max-width: 480px; 
             overflow: hidden; position: relative; margin-bottom: 20px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
         }
 
-        /* 顶部导航与丝滑进度条 (Q弹动画复活) */
-        .header-bar { width: 100%; max-width: 480px; display: flex; justify-content: space-between; align-items: center; padding: 10px 5px 20px; font-weight: 600; color: #8e8e93; font-size: 0.95rem;}
-        
-        .btn-icon-top { 
-            background: none; border: none; cursor: pointer; color: #8e8e93; padding: 8px; border-radius: 50%; 
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); -webkit-tap-highlight-color: transparent; 
-            display: flex; align-items: center; justify-content: center;
+        /* --- ✨ 3. Apple Fitness 风格仪表盘 (完美比例修复) --- */
+        .dashboard {
+            background: rgba(255, 255, 255, 0.9); border-radius: 24px; margin: 0 20px 25px; padding: 25px 30px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,1);
+            border: 1px solid rgba(0,0,0,0.02);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .btn-icon-top .sf-icon { width: 1.4rem; height: 1.4rem; }
+        .dashboard:active { transform: scale(0.96); }
+        .dash-stats { display: flex; flex-direction: column; gap: 12px; }
+        .dash-item { display: flex; flex-direction: column; gap: 2px;}
+        .dash-val { font-size: 2rem; font-weight: 800; color: #1c1c1e; line-height: 1; letter-spacing: -0.5px; }
+        .dash-label { font-size: 0.75rem; color: #8e8e93; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;}
+        
+        .dash-ring { width: 90px; height: 90px; position: relative; display: flex; justify-content: center; align-items: center; filter: drop-shadow(0 4px 8px rgba(94, 92, 230, 0.3));}
+        .circular-chart { display: block; margin: 0; width: 100%; height: 100%; }
+        .circle-bg { fill: none; stroke: rgba(94, 92, 230, 0.1); stroke-width: 3; }
+        /* 丝滑的画圆动画 */
+        .circle { fill: none; stroke-width: 3.5; stroke-linecap: round; transition: stroke-dasharray 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); stroke: #5e5ce6; }
+        .percentage { fill: #1c1c1e; font-family: "SF Pro Display", sans-serif; font-size: 0.5em; font-weight: 800; text-anchor: middle; transform: translateY(2px);}
+
+        /* 顶部导航与丝滑进度条 */
+        .header-bar { width: 100%; max-width: 480px; display: flex; justify-content: space-between; align-items: center; padding: 10px 5px 20px; font-weight: 700; color: #8e8e93; font-size: 1rem;}
+        .btn-icon-top { background: none; border: none; cursor: pointer; color: #8e8e93; padding: 10px; border-radius: 50%; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); -webkit-tap-highlight-color: transparent; display: flex; align-items: center; justify-content: center;}
+        .btn-icon-top .sf-icon { width: 1.5rem; height: 1.5rem; }
         .btn-icon-top:hover { color: #5e5ce6; background-color: rgba(94, 92, 230, 0.1); transform: translateY(-2px); }
         .btn-icon-top:active { transform: scale(0.85); }
         
         .progress-container { width: 100%; max-width: 480px; height: 6px; background-color: rgba(0,0,0,0.06); border-radius: 6px; margin-bottom: 25px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);}
-        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #6366f1, #8b5cf6); border-radius: 6px; transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #5e5ce6, #32ade6); border-radius: 6px; transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
-        /* --- 3. 首页 iOS 风格设置面板 --- */
-        .home-title { font-size: 2.5rem; font-weight: 900; background: linear-gradient(135deg, #0f172a, #334155); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; text-align: center; letter-spacing: -1px;}
-        .home-subtitle { color: #8e8e93; font-size: 0.95rem; margin-bottom: 35px; text-align: center; font-weight: 600;}
+        /* 首页设置 */
+        .home-title { font-size: 2.8rem; font-weight: 900; background: linear-gradient(135deg, #1c1c1e, #3a3a3c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; text-align: center; letter-spacing: -1px;}
+        .home-subtitle { color: #8e8e93; font-size: 1rem; margin-bottom: 30px; text-align: center; font-weight: 600;}
         
-        .settings-container { background: rgba(255,255,255,0.8); border-radius: 20px; margin: 0 20px 30px; padding: 0 15px; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 15px rgba(0,0,0,0.02);}
-        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .settings-container { background: rgba(255,255,255,0.9); border-radius: 20px; margin: 0 20px 30px; padding: 0 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);}
+        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
         .setting-row:last-child { border-bottom: none; }
-        .setting-label { font-weight: 600; color: #1c1c1e; font-size: 1.05rem; display: flex; align-items: center; gap: 12px;}
-        .setting-icon { color: white; padding: 6px; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08);}
-        .setting-icon .sf-icon { width: 1.2rem; height: 1.2rem; stroke-width: 2.2;}
+        .setting-label { font-weight: 600; color: #1c1c1e; font-size: 1.1rem; display: flex; align-items: center; gap: 12px;}
+        .setting-icon { color: white; padding: 8px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
+        .setting-icon .sf-icon { width: 1.2rem; height: 1.2rem; stroke-width: 2.5;}
         
-        .setting-input { width: 60px; padding: 6px 10px; border-radius: 8px; border: 2px solid transparent; background: rgba(0,0,0,0.05); color: #1c1c1e; font-size: 1.1rem; font-weight: 800; text-align: center; transition: all 0.3s;}
+        .setting-input { width: 65px; padding: 8px 10px; border-radius: 10px; border: 2px solid transparent; background: rgba(0,0,0,0.05); color: #1c1c1e; font-size: 1.1rem; font-weight: 800; text-align: center; transition: all 0.3s;}
         .setting-input:focus { outline: none; background: #fff; border-color: #5e5ce6; box-shadow: 0 0 0 3px rgba(94, 92, 230, 0.15); }
 
-        /* 主按钮 (果冻悬浮动效复活！) */
+        /* --- 按钮果冻悬浮动效复活！ --- */
         .btn-primary { 
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; width: calc(100% - 40px); margin: 0 20px 15px; padding: 18px 0; 
-            font-size: 1.15rem; font-weight: 700; border: none; border-radius: 18px; cursor: pointer; -webkit-tap-highlight-color: transparent;
-            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4), inset 0 1px 1px rgba(255,255,255,0.3); 
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); letter-spacing: 0.5px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: linear-gradient(135deg, #5e5ce6, #413bc2); color: white; width: calc(100% - 40px); margin: 0 20px 15px; padding: 20px 0; 
+            font-size: 1.2rem; font-weight: 700; border: none; border-radius: 20px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 10px 25px -5px rgba(94, 92, 230, 0.5), inset 0 1px 1px rgba(255,255,255,0.3); 
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); letter-spacing: 0.5px;
         }
-        .btn-primary .sf-icon { width: 1.3rem; height: 1.3rem; }
-        .btn-primary:hover { transform: translateY(-4px); box-shadow: 0 15px 25px -5px rgba(99, 102, 241, 0.5); }
-        .btn-primary:active { transform: translateY(1px) scale(0.96); box-shadow: 0 5px 10px -5px rgba(99, 102, 241, 0.3); }
+        .btn-primary .sf-icon { width: 1.4rem; height: 1.4rem; }
+        .btn-primary:hover { transform: translateY(-4px); box-shadow: 0 15px 30px -5px rgba(94, 92, 230, 0.6); }
+        .btn-primary:active { transform: translateY(2px) scale(0.96); box-shadow: 0 5px 10px -5px rgba(94, 92, 230, 0.4); }
 
         .btn-secondary { 
-            display: flex; align-items: center; justify-content: center; gap: 8px; 
-            background-color: white; color: #5e5ce6; width: calc(100% - 40px); margin: 0 20px 25px; padding: 16px 0; 
-            font-size: 1.1rem; font-weight: 700; border: none; border-radius: 18px; cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); -webkit-tap-highlight-color: transparent; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            display: flex; align-items: center; justify-content: center; gap: 10px; 
+            background-color: white; color: #5e5ce6; width: calc(100% - 40px); margin: 0 20px 25px; padding: 18px 0; 
+            font-size: 1.1rem; font-weight: 700; border: none; border-radius: 20px; cursor: pointer; 
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); -webkit-tap-highlight-color: transparent; box-shadow: 0 4px 15px rgba(0,0,0,0.04);
         }
-        .btn-secondary .sf-icon { width: 1.3rem; height: 1.3rem; }
-        .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.05); }
-        .btn-secondary:active { transform: scale(0.96); background-color: rgba(0,0,0,0.02); box-shadow: none;}
+        .btn-secondary .sf-icon { width: 1.4rem; height: 1.4rem; }
+        .btn-secondary:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+        .btn-secondary:active { transform: scale(0.96); box-shadow: 0 2px 5px rgba(0,0,0,0.03);}
 
-        /* --- 4. 学习页精细化排版 --- */
-        .card-header { padding: 45px 20px 30px; text-align: center; position: relative; }
+        /* --- 4. 学习页排版修复 --- */
+        .card-header { padding: 50px 20px 30px; text-align: center; position: relative; }
         
-        #word-display { font-size: clamp(2.8rem, 8vw, 3.8rem); font-weight: 800; color: #1c1c1e; margin: 0 0 5px; letter-spacing: -1.5px; word-break: break-word; cursor: pointer; text-shadow: 0 4px 10px rgba(0,0,0,0.05);}
-        #phonetic-display { font-size: 1.1rem; color: #8e8e93; margin: 0 0 25px; font-family: "SF Mono", ui-monospace, Consolas, monospace; letter-spacing: 0.5px;}
+        #word-display { font-size: clamp(3rem, 10vw, 4rem); font-weight: 800; color: #1c1c1e; margin: 0 0 5px; letter-spacing: -1.5px; word-break: break-word; cursor: pointer; text-shadow: 0 4px 15px rgba(0,0,0,0.05);}
+        #phonetic-display { font-size: 1.15rem; color: #8e8e93; margin: 0 0 25px; font-family: "SF Mono", ui-monospace, Consolas, monospace; letter-spacing: 0.5px;}
         
         .speaker-btn {
             background: none; border: none; cursor: pointer; color: #a1a1a6; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
-            border-radius: 50%; padding: 8px; margin: 0 auto 5px; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent;
+            border-radius: 50%; padding: 10px; margin: 0 auto 5px; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent;
         }
-        .speaker-btn .sf-icon { width: 2rem; height: 2rem; stroke-width: 1.8; }
+        .speaker-btn .sf-icon { width: 2.2rem; height: 2.2rem; stroke-width: 1.8; }
         .speaker-btn:hover { color: #5e5ce6; background-color: rgba(94, 92, 230, 0.1); transform: scale(1.15); }
         .speaker-btn:active { transform: scale(0.9); }
         
-        #btn-star { position: absolute; top: 18px; left: 18px; color: #d1d1d6; cursor: pointer; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); background: none; border: none; -webkit-tap-highlight-color: transparent; padding: 8px;}
-        #btn-star .sf-icon { width: 1.6rem; height: 1.6rem; stroke-width: 1.8;}
+        #btn-star { position: absolute; top: 20px; left: 20px; color: #d1d1d6; cursor: pointer; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); background: none; border: none; -webkit-tap-highlight-color: transparent; padding: 10px;}
+        #btn-star .sf-icon { width: 1.8rem; height: 1.8rem; stroke-width: 1.8;}
         #btn-star:hover { transform: scale(1.2); }
-        #btn-star.starred { color: #f59e0b; transform: scale(1.15); filter: drop-shadow(0 4px 8px rgba(245, 158, 11, 0.4)); }
+        #btn-star.starred { color: #ffcc00; transform: scale(1.15); filter: drop-shadow(0 4px 10px rgba(255, 204, 0, 0.4)); }
         #btn-star.starred .sf-icon { fill: currentColor; } 
         
-        #memory-level-badge { position: absolute; top: 22px; right: 20px; font-size: 0.75rem; padding: 5px 12px; border-radius: 10px; font-weight: 800; letter-spacing: 0.5px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);}
+        #memory-level-badge { position: absolute; top: 26px; right: 20px; font-size: 0.8rem; padding: 6px 14px; border-radius: 12px; font-weight: 800; letter-spacing: 0.5px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);}
         .level-0 { background: #e5f4e8; color: #28a745; }
         .level-1 { background: #fff5e5; color: #ff9500; }
         .level-2 { background: #ffebee; color: #ff3b30; }
 
+        /* --- ✨ 5. 翻译组件 iOS 原生感重塑 --- */
         #hint-container { 
-            display: inline-flex; align-items: center; gap: 12px; padding: 12px 16px 12px 20px; 
-            background: rgba(94, 92, 230, 0.08); border-radius: 16px; margin: 0 auto; max-width: 90%; 
+            display: flex; flex-direction: column; padding: 18px 20px; 
+            background: rgba(255, 255, 255, 0.6); border-radius: 20px; margin: 0 auto; max-width: 90%; 
             transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); border: 1px solid rgba(94, 92, 230, 0.15);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.03);
         }
-        #hint-display { font-size: 1.05rem; color: #5e5ce6; font-weight: 500; text-align: left; line-height: 1.4; }
-        .hint-speaker { color: #5e5ce6; background: white; padding: 6px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .hint-speaker .sf-icon { width: 1.1rem; height: 1.1rem; }
+        .hint-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; width: 100%;}
+        #hint-display { font-size: 1.1rem; color: #5e5ce6; font-weight: 600; text-align: left; line-height: 1.4; flex: 1;}
+        
+        /* 优雅的按键组 */
+        .hint-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+        .hint-speaker { color: #5e5ce6; background: white; padding: 8px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.06); margin: 0;}
+        .hint-speaker .sf-icon { width: 1.2rem; height: 1.2rem; }
+        
+        /* 苹果质感的翻译按钮 */
+        .trans-btn { 
+            background: rgba(94, 92, 230, 0.08); color: #5e5ce6; border: none; padding: 8px 14px; border-radius: 12px; 
+            font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            display: flex; align-items: center; gap: 4px; -webkit-tap-highlight-color: transparent;
+        }
+        .trans-btn:hover { background: rgba(94, 92, 230, 0.15); transform: translateY(-2px); }
+        .trans-btn:active { transform: scale(0.9); background: #5e5ce6; color: white;}
 
-        /* --- 5. 极致视觉的操作按钮 (果冻动效复活！) --- */
+        .trans-text {
+            font-size: 1rem; color: #8e8e93; font-weight: 500; margin-top: 15px; padding-top: 15px;
+            border-top: 1px solid rgba(0,0,0,0.06); display: none; line-height: 1.5; text-align: left;
+            animation: textReveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform-origin: top;
+        }
+        @keyframes textReveal { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- 动作按钮 (果冻动效回归！) --- */
         .action-area { padding: 0 20px 30px; }
         .buttons { display: flex; gap: 12px; justify-content: center; }
         .action-btn { 
-            flex: 1; padding: 14px 0; border-radius: 16px; cursor: pointer; -webkit-tap-highlight-color: transparent; 
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; flex-direction: column; align-items: center; gap: 6px; line-height: 1.2;
-            border: none; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+            flex: 1; padding: 18px 0; border-radius: 20px; cursor: pointer; -webkit-tap-highlight-color: transparent; 
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; flex-direction: column; align-items: center; gap: 8px; line-height: 1.2;
+            border: none; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.04);
         }
-        .action-btn:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
-        .action-btn:active { transform: translateY(2px) scale(0.94); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .action-btn .sf-icon { width: 1.4rem; height: 1.4rem; stroke-width: 2.2;}
+        .action-btn:hover { transform: translateY(-4px); box-shadow: 0 12px 25px rgba(0,0,0,0.06); }
+        .action-btn:active { transform: translateY(2px) scale(0.92); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .action-btn .sf-icon { width: 1.6rem; height: 1.6rem; stroke-width: 2.2;}
         
-        #btn-hint { color: #8e8e93; }
-        #btn-unknown { color: #ff3b30; }
-        #btn-known { color: #34c759; }
-        
-        .btn-maintext { font-size: 1.05rem; font-weight: 700;}
-        .btn-subtext { font-size: 0.7rem; font-weight: 600; opacity: 0.6; }
+        #btn-hint { color: #8e8e93; } #btn-unknown { color: #ff3b30; } #btn-known { color: #34c759; }
+        .btn-maintext { font-size: 1.1rem; font-weight: 700;} .btn-subtext { font-size: 0.75rem; font-weight: 600; opacity: 0.6; }
 
         /* --- 6. 详情解析面板 (丝滑滑入复活！) --- */
-        #detail-section { border-top: 1px solid rgba(0,0,0,0.05); background-color: rgba(255,255,255,0.5); padding: 30px 25px; text-align: left; border-radius: 0 0 24px 24px; display: none; }
-        
-        /* 核心：确保 CSS 动画完美执行 */
+        #detail-section { border-top: 1px solid rgba(0,0,0,0.05); background-color: rgba(255,255,255,0.6); padding: 35px 25px; text-align: left; border-radius: 0 0 28px 28px; display: none; }
         #detail-section.show { display: block; animation: detailSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes detailSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-        .pos-tag { background-color: #5e5ce6; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 700; margin-right: 8px; box-shadow: 0 4px 8px rgba(94, 92, 230, 0.2);}
-        #detail-meaning-text { font-size: 1.2rem; font-weight: 700; color: #1c1c1e; }
+        .pos-tag { background-color: #5e5ce6; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 800; margin-right: 10px; box-shadow: 0 4px 10px rgba(94, 92, 230, 0.2);}
+        #detail-meaning-text { font-size: 1.25rem; font-weight: 700; color: #1c1c1e; }
         
-        .sub-info-box { background-color: white; border-radius: 16px; padding: 18px; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: all 0.3s;}
-        .sub-info-box:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.05); }
-        .sub-info-title { font-size: 0.75rem; color: #8e8e93; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
-        #detail-usage { color:#1c1c1e; font-weight:700; font-size:1.05rem; line-height: 1.4;}
-        #detail-forms { margin-top:6px; color:#8e8e93; font-size:0.95rem; line-height: 1.5; }
+        .sub-info-box { background-color: white; border-radius: 20px; padding: 20px; margin-top: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: all 0.3s;}
+        .sub-info-box:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.05); }
+        .sub-info-title { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #8e8e93; font-weight: 800; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;}
+        #detail-usage { color:#1c1c1e; font-weight:700; font-size:1.1rem; line-height: 1.5;}
+        #detail-forms { margin-top:8px; color:#8e8e93; font-size:0.95rem; line-height: 1.6; }
         .highlight { color: #5e5ce6; font-weight: 700; background: rgba(94, 92, 230, 0.1); padding: 2px 6px; border-radius: 6px;}
 
         /* --- 7. 错题本遮罩“刮刮乐” (3D翻转复活！) --- */
         .notebook-list { width: 100%; max-height: 60vh; overflow-y: auto; padding: 0 20px 20px; box-sizing: border-box; }
-        .notebook-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .nb-word { font-size: 1.3rem; font-weight: 800; color: #1c1c1e; }
+        .notebook-item { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .nb-word { font-size: 1.4rem; font-weight: 800; color: #1c1c1e; }
         
-        .btn-remove-nb { display: flex; align-items: center; justify-content: center; background: white; color: #ff3b30; border: none; padding: 8px; border-radius: 12px; cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 2px 8px rgba(0,0,0,0.04);}
-        .btn-remove-nb .sf-icon { width: 1.2rem; height: 1.2rem; stroke-width: 2.2; }
-        .btn-remove-nb:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(255, 59, 48, 0.15);}
+        .btn-remove-nb { display: flex; align-items: center; justify-content: center; background: white; color: #ff3b30; border: none; padding: 10px; border-radius: 14px; cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 4px 12px rgba(0,0,0,0.04);}
+        .btn-remove-nb .sf-icon { width: 1.4rem; height: 1.4rem; stroke-width: 2.2; }
+        .btn-remove-nb:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255, 59, 48, 0.15);}
         .btn-remove-nb:active { background: #ffebee; transform: scale(0.9); box-shadow: none;}
 
-        .nb-meaning { margin-top: 8px; cursor: pointer; -webkit-tap-highlight-color: transparent; perspective: 1000px;}
+        .nb-meaning { margin-top: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; perspective: 1000px;}
         .hidden-meaning .real-text { display: none; }
-        .hidden-meaning .mask-text { display: inline-flex; align-items: center; gap: 6px; background-color: rgba(0,0,0,0.04); color: #8e8e93; padding: 6px 14px; border-radius: 10px; font-size: 0.95rem; font-weight: 700; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); border: 1px dashed rgba(0,0,0,0.15);}
+        .hidden-meaning .mask-text { display: inline-flex; align-items: center; gap: 8px; background-color: rgba(0,0,0,0.04); color: #8e8e93; padding: 8px 16px; border-radius: 12px; font-size: 0.95rem; font-weight: 700; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); border: 1px dashed rgba(0,0,0,0.15);}
         .hidden-meaning:hover .mask-text { background-color: rgba(0,0,0,0.08); color: #1c1c1e;}
         .hidden-meaning:active .mask-text { transform: scale(0.94); }
         
-        /* 核心：3D 翻转动画 */
-        .hidden-meaning.revealed .real-text { display: inline-block; color: #3a3a3c; font-size: 1rem; font-weight: 600; animation: flipIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: left center;}
+        .hidden-meaning.revealed .real-text { display: inline-block; color: #3a3a3c; font-size: 1.05rem; font-weight: 600; animation: flipIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: left center;}
         .hidden-meaning.revealed .mask-text { display: none; }
         
-        @keyframes flipIn { 
-            from { opacity: 0; transform: rotateX(-70deg) translateY(10px); } 
-            to { opacity: 1; transform: rotateX(0deg) translateY(0); } 
-        }
+        @keyframes flipIn { from { opacity: 0; transform: rotateX(-70deg) translateY(10px); } to { opacity: 1; transform: rotateX(0deg) translateY(0); } }
         
         .hidden { display: none !important; }
         .invisible { opacity: 0; visibility: hidden; position: absolute; }
@@ -190,23 +218,39 @@
     <div id="view-home" class="view active">
         <div class="card" style="padding-top: 50px;">
             <div class="home-title">CET-6 Pro</div>
-            <div class="home-subtitle" id="word-lib-info">同步大纲词库...</div>
+            <div class="home-subtitle" id="word-lib-info">正在连接核心词汇库...</div>
+
+            <div class="dashboard">
+                <div class="dash-stats">
+                    <div class="dash-item">
+                        <span class="dash-val" id="dash-learned">0</span>
+                        <span class="dash-label">已掌握词汇</span>
+                    </div>
+                    <div class="dash-item" style="margin-top: 5px;">
+                        <span class="dash-val" id="dash-total" style="color: #8e8e93; font-size: 1.4rem;">0</span>
+                        <span class="dash-label">词库总量</span>
+                    </div>
+                </div>
+                <div class="dash-ring">
+                    <svg viewBox="0 0 36 36" class="circular-chart">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" id="dash-ring-path" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <text x="18" y="20.35" class="percentage" id="dash-percent">0%</text>
+                    </svg>
+                </div>
+            </div>
 
             <div class="settings-container">
                 <div class="setting-row">
                     <span class="setting-label">
-                        <div class="setting-icon" style="background:#34c759;">
-                            <svg class="sf-icon" viewBox="0 0 24 24"><path d="M12 21v-8m0 0a8 8 0 10-8-8c0 4.418 3.582 8 8 8zm0 0a8 8 0 118-8c0 4.418-3.582 8-8 8z"></path></svg>
-                        </div> 
+                        <div class="setting-icon" style="background:#34c759;"><svg class="sf-icon" viewBox="0 0 24 24"><path d="M12 21v-8m0 0a8 8 0 10-8-8c0 4.418 3.582 8 8 8zm0 0a8 8 0 118-8c0 4.418-3.582 8-8 8z"></path></svg></div> 
                         每日新词
                     </span>
                     <input type="number" id="input-new-words" class="setting-input" value="30" min="5" max="200">
                 </div>
                 <div class="setting-row">
                     <span class="setting-label">
-                        <div class="setting-icon" style="background:#007aff;">
-                            <svg class="sf-icon" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                        </div> 
+                        <div class="setting-icon" style="background:#007aff;"><svg class="sf-icon" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg></div> 
                         滚动复习
                     </span>
                     <input type="number" id="input-review-words" class="setting-input" value="50" min="0" max="300">
@@ -214,125 +258,94 @@
             </div>
 
             <button id="btn-start-learning" class="btn-primary">
-                <svg class="sf-icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon></svg>
-                开始专注学习
+                <svg class="sf-icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon></svg>开始专注学习
             </button>
             <button id="btn-go-notebook" class="btn-secondary">
-                <svg class="sf-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                我的错题本
+                <svg class="sf-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>专属错题本
             </button>
         </div>
     </div>
 
     <div id="view-learn" class="view">
         <div class="header-bar">
-            <button class="btn-icon-top" id="btn-back-home">
-                <svg class="sf-icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
-            </button>
-            <span id="queue-counter-text" style="font-weight: 800; color: #475569; letter-spacing: 0.5px;">0 / 0</span>
+            <button class="btn-icon-top" id="btn-back-home"><svg class="sf-icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+            <span id="queue-counter-text">0 / 0</span>
             <span style="width: 38px;"></span>
         </div>
         
-        <div class="progress-container">
-            <div class="progress-bar" id="progress-bar"></div>
-        </div>
+        <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
 
         <div class="card" id="learning-card">
             <div class="card-header">
-                <button id="btn-star" title="加入错题本">
-                    <svg class="sf-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                </button>
+                <button id="btn-star" title="加入错题本"><svg class="sf-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
                 <div id="memory-level-badge" class="level-0 hidden">Lv.0</div>
                 
                 <div id="word-display">Word</div>
                 
-                <button class="speaker-btn" id="btn-speak-word">
-                    <svg class="sf-icon" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
-                </button>
+                <button class="speaker-btn" id="btn-speak-word"><svg class="sf-icon" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg></button>
                 
                 <div id="phonetic-display">/phonetic/</div>
                 
                 <div id="hint-container" class="invisible">
-                    <span id="hint-display">Hint sentence.</span>
-                    <button class="speaker-btn hint-speaker" id="btn-speak-hint">
-                        <svg class="sf-icon" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-                    </button>
+                    <div class="hint-header">
+                        <span id="hint-display">Hint sentence.</span>
+                        <div class="hint-actions">
+                            <button class="trans-btn" onclick="translateText('hint-display', 'hint-trans')">
+                                <svg class="sf-icon" style="width:1rem;height:1rem;" viewBox="0 0 24 24"><path d="M5 8l6 6"></path><path d="M4 14l6-6 2-3"></path><path d="M2 5h12"></path><path d="M7 2h1"></path><path d="M22 22l-5-10-5 10"></path><path d="M14 18h6"></path></svg>译
+                            </button>
+                            <button class="speaker-btn hint-speaker" id="btn-speak-hint"><svg class="sf-icon" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></button>
+                        </div>
+                    </div>
+                    <div id="hint-trans" class="trans-text"></div>
                 </div>
             </div>
 
             <div class="action-area" id="main-buttons">
                 <div class="buttons">
-                    <button id="btn-hint" class="action-btn">
-                        <svg class="sf-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
-                        <span class="btn-maintext">提示</span>
-                        <span class="btn-subtext">看例句</span>
-                    </button>
-                    <button id="btn-unknown" class="action-btn">
-                        <svg class="sf-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                        <span class="btn-maintext">遗忘</span>
-                        <span class="btn-subtext">需重学</span>
-                    </button>
-                    <button id="btn-known" class="action-btn">
-                        <svg class="sf-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        <span class="btn-maintext">掌握</span>
-                        <span class="btn-subtext">已认识</span>
-                    </button>
+                    <button id="btn-hint" class="action-btn"><svg class="sf-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><span class="btn-maintext">提示</span><span class="btn-subtext">看例句</span></button>
+                    <button id="btn-unknown" class="action-btn"><svg class="sf-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg><span class="btn-maintext">遗忘</span><span class="btn-subtext">需重学</span></button>
+                    <button id="btn-known" class="action-btn"><svg class="sf-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg><span class="btn-maintext">掌握</span><span class="btn-subtext">已认识</span></button>
                 </div>
             </div>
 
             <div id="detail-section" class="hidden">
-                <div>
-                    <span class="pos-tag" id="detail-pos">v.</span>
-                    <span id="detail-meaning-text">释义</span>
-                </div>
+                <div><span class="pos-tag" id="detail-pos">v.</span><span id="detail-meaning-text">释义</span></div>
                 <div class="sub-info-box">
                     <div class="sub-info-title">Usage & Forms</div>
-                    <div id="detail-usage"></div>
-                    <div id="detail-forms"></div>
+                    <div id="detail-usage"></div><div id="detail-forms"></div>
                 </div>
                 <div class="sub-info-box">
-                    <div class="sub-info-title">Example</div>
-                    <div style="display:flex; justify-content:space-between; align-items:start; gap:12px;">
-                        <span id="detail-cet-text" style="flex:1;"></span>
-                        <button id="btn-speak-cet" class="btn-icon-top" style="background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: #5e5ce6;">
-                            <svg class="sf-icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon></svg>
+                    <div class="sub-info-title">
+                        <span>Example (六级真题)</span>
+                        <button class="trans-btn" style="margin:0;" onclick="translateText('detail-cet-text', 'cet-trans')">
+                            <svg class="sf-icon" style="width:1rem;height:1rem;" viewBox="0 0 24 24"><path d="M5 8l6 6"></path><path d="M4 14l6-6 2-3"></path><path d="M2 5h12"></path><path d="M7 2h1"></path><path d="M22 22l-5-10-5 10"></path><path d="M14 18h6"></path></svg>翻译
                         </button>
                     </div>
+                    <div style="display:flex; justify-content:space-between; align-items:start; gap:15px;">
+                        <span id="detail-cet-text" style="flex:1;"></span>
+                        <button id="btn-speak-cet" class="btn-icon-top" style="background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.06); color: #5e5ce6; padding: 10px;"><svg class="sf-icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon></svg></button>
+                    </div>
+                    <div id="cet-trans" class="trans-text"></div>
                 </div>
-                <button id="btn-next" class="btn-primary" style="margin: 30px 0 0; width:100%;">
-                    继续下一个 
-                    <svg class="sf-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                </button>
+                <button id="btn-next" class="btn-primary" style="margin: 30px 0 0; width:100%;">继续下一个 <svg class="sf-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
             </div>
         </div>
     </div>
 
     <div id="view-notebook" class="view">
         <div class="header-bar">
-            <button class="btn-icon-top" id="btn-back-home-from-nb">
-                <svg class="sf-icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
-            </button>
-            <span style="font-size:1.2rem; font-weight: 800; color:#1c1c1e;">错题本库</span>
-            <span style="width: 38px;"></span>
+            <button class="btn-icon-top" id="btn-back-home-from-nb"><svg class="sf-icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+            <span style="font-size:1.2rem; font-weight: 800; color:#1c1c1e;">错题本库</span><span style="width: 38px;"></span>
         </div>
-
         <div class="card" style="padding-top:25px;">
             <div id="notebook-actions" style="padding: 0 25px 15px;">
-                <button id="btn-learn-notebook" class="btn-primary" style="margin: 0; width: 100%;">
-                    <svg class="sf-icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon></svg>
-                    专项复习错题
-                </button>
+                <button id="btn-learn-notebook" class="btn-primary" style="margin: 0; width: 100%;"><svg class="sf-icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon></svg> 专项攻克错题</button>
             </div>
-
             <div id="notebook-empty" style="text-align:center; padding: 60px 20px; color:#8e8e93; display:none;">
-                <div style="margin-bottom: 15px;">
-                    <svg class="sf-icon" style="width:3.5rem; height:3.5rem; color:#d1d1d6;" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                </div>
+                <div style="margin-bottom: 15px;"><svg class="sf-icon" style="width:3.5rem; height:3.5rem; color:#d1d1d6;" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
                 <div style="font-weight: 600; font-size: 1.1rem;">错题本目前是空的哦</div>
             </div>
-            
-            <div class="notebook-list" id="notebook-list-container">
-                </div>
+            <div class="notebook-list" id="notebook-list-container"></div>
         </div>
     </div>
 
@@ -344,6 +357,50 @@
         let errorBook = JSON.parse(localStorage.getItem('cet6_errorbook')) || [];
         
         let studyQueue = []; let currentWord = null; let hintUsedThisTurn = false; let totalTodayTask = 0;
+
+        function updateDashboard() {
+            if(typeof allWords === 'undefined') return;
+            const total = allWords.length;
+            const learned = learnedWords.length;
+            const percent = total === 0 ? 0 : Math.round((learned / total) * 100);
+            
+            // 1. 更新普通文字
+            document.getElementById('dash-learned').innerText = learned;
+            document.getElementById('dash-total').innerText = total;
+            
+            // 2. 更新 SVG 矢量文字（必须用 textContent）
+            document.getElementById('dash-percent').textContent = percent + "%";
+            
+            // 3. 更新 SVG 动画（用最底层的 setAttribute 最稳妥）
+            setTimeout(() => {
+                document.getElementById('dash-ring-path').setAttribute('stroke-dasharray', `${percent}, 100`);
+            }, 100);
+            
+            document.getElementById('word-lib-info').innerText = "已连接高频核心词库";
+        }
+
+        async function translateText(sourceId, targetId) {
+            const sourceEl = document.getElementById(sourceId);
+            const targetEl = document.getElementById(targetId);
+            
+            if (targetEl.style.display === 'block') {
+                targetEl.style.display = 'none';
+                return;
+            }
+            
+            const textToTranslate = sourceEl.innerText;
+            targetEl.style.display = 'block';
+            targetEl.innerText = "正在呼叫 AI 翻译...";
+            
+            try {
+                const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(textToTranslate)}`);
+                const data = await response.json();
+                const translatedText = data[0].map(item => item[0]).join('');
+                targetEl.innerHTML = "<span style='color:#5e5ce6; font-weight:800; margin-right:6px;'>译</span>" + translatedText;
+            } catch (error) {
+                targetEl.innerText = "翻译失败，请检查网络。";
+            }
+        }
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array;
@@ -360,7 +417,12 @@
         }
 
         const views = { home: document.getElementById('view-home'), learn: document.getElementById('view-learn'), notebook: document.getElementById('view-notebook') };
-        function switchView(viewName) { Object.values(views).forEach(v => v.classList.remove('active')); views[viewName].classList.add('active'); safeStopSpeech(); }
+        function switchView(viewName) { 
+            Object.values(views).forEach(v => v.classList.remove('active')); 
+            views[viewName].classList.add('active'); 
+            safeStopSpeech(); 
+            if(viewName === 'home') updateDashboard(); 
+        }
 
         function generateTodayQueue() {
             const numNew = parseInt(document.getElementById('input-new-words').value) || 30;
@@ -401,9 +463,11 @@
             const regex = new RegExp(`(${currentWord.word.substring(0,4)}[a-z]*)`, 'gi');
             document.getElementById('detail-cet-text').innerHTML = currentWord.cetSentences.replace(regex, '<span class="highlight">$1</span>');
 
+            document.getElementById('hint-trans').style.display = 'none';
+            document.getElementById('cet-trans').style.display = 'none';
+
             document.getElementById('hint-container').classList.add('invisible'); document.getElementById('hint-container').style.position = 'absolute'; 
             
-            // 重要：重置动画状态
             const detailSec = document.getElementById('detail-section'); 
             detailSec.classList.remove('show'); 
             detailSec.classList.add('hidden');
@@ -461,10 +525,7 @@
             
             const detailSec = document.getElementById('detail-section'); 
             detailSec.classList.remove('hidden'); 
-            
-            // 魔法：强制浏览器重绘，确保每一次都能触发滑入动画！
             void detailSec.offsetWidth; 
-            
             detailSec.classList.add('show'); 
             
             safeStopSpeech(); speakWord(currentWord.word); 
@@ -498,7 +559,7 @@
                         </div>
                         <div class="nb-meaning hidden-meaning" onclick="this.classList.toggle('revealed')">
                             <span class="mask-text">
-                                <svg class="sf-icon" style="width:1rem;height:1rem;" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                <svg class="sf-icon" style="width:1.2rem;height:1.2rem;" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                 揭晓释义
                             </span>
                             <span class="real-text">${w.pos} ${w.meaning}</span>
@@ -515,7 +576,7 @@
         window.speakWord = speakWord;
         window.removeFromNotebook = function(id) { errorBook = errorBook.filter(wId => wId !== id); localStorage.setItem('cet6_errorbook', JSON.stringify(errorBook)); renderNotebook(); };
 
-        if(typeof allWords !== 'undefined') { document.getElementById('word-lib-info').innerText = `已载入 ${allWords.length} 核心词汇`; }
+        window.onload = () => { if(typeof allWords !== 'undefined') updateDashboard(); }
     </script>
 </body>
 </html>
