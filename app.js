@@ -60,29 +60,30 @@ window.onload = () => {
     updateDashboard(); 
 }
 
-// ================= ✨ 核心：终极原生离线发音引擎 =================
-// 彻底抛弃网络接口，调用苹果/安卓系统自带的发音引擎，防拦截、防卡顿
+// ================= ✨ 核心：终极发音引擎 =================
+const audioPlayer = new Audio();
+
 function safeStopSpeech() { 
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-    }
+    audioPlayer.pause();
+    audioPlayer.currentTime = 0;
 }
 
-function playNativeSound(text) {
-    if (!text || !('speechSynthesis' in window)) {
-        console.log("当前浏览器不支持原生发音");
-        return;
-    }
-    
-    safeStopSpeech(); // 读新句子前，切断上一个声音
-    
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US'; // 强制美音
-    utterance.rate = 0.85;    // 语速稍微放慢，完美适合英语听力
-    utterance.pitch = 1.0;    // 正常音调
-    
-    window.speechSynthesis.speak(utterance);
+function speakWord(text) { 
+    if(!text) return;
+    safeStopSpeech();
+    // 单词发音：有道词典标准美音
+    audioPlayer.src = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(text)}&type=2`;
+    audioPlayer.play().catch(e => console.log("播放失败", e));
 }
+
+function speakSentence(text) { 
+    if(!text) return;
+    safeStopSpeech();
+    // 句子发音：有道翻译【长句专用】底层接口，无视跨域，国内秒开！
+    audioPlayer.src = `https://tts.youdao.com/fanyivoice?word=${encodeURIComponent(text)}&le=eng&keyfrom=speaker-target`;
+    audioPlayer.play().catch(e => console.log("播放失败", e));
+}
+// =================================================================
 
 function speakWord(text) { playNativeSound(text); }
 function speakSentence(text) { playNativeSound(text); }
