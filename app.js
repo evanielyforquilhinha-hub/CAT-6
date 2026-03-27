@@ -60,12 +60,14 @@ window.onload = () => {
     updateDashboard(); 
 }
 
-// ================= ✨ 核心：终极发音引擎 =================
+// ================= ✨ 核心：终极发音引擎 (网易有道官方长句接口) =================
 const audioPlayer = new Audio();
 
 function safeStopSpeech() { 
-    audioPlayer.pause();
-    audioPlayer.currentTime = 0;
+    try {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+    } catch (e) {}
 }
 
 function speakWord(text) { 
@@ -84,9 +86,6 @@ function speakSentence(text) {
     audioPlayer.play().catch(e => console.log("播放失败", e));
 }
 // =================================================================
-
-function speakWord(text) { playNativeSound(text); }
-function speakSentence(text) { playNativeSound(text); }
 
 // ================= 界面控制逻辑 =================
 let studyQueue = []; let currentWord = null; let hintUsedThisTurn = false; let totalTodayTask = 0;
@@ -251,11 +250,6 @@ document.getElementById('btn-learn-notebook')?.addEventListener('click', () => {
 });
 
 document.getElementById('btn-start-learning')?.addEventListener('click', () => { 
-    // 解锁手机语音限制
-    if ('speechSynthesis' in window) {
-        let msg = new SpeechSynthesisUtterance('');
-        window.speechSynthesis.speak(msg);
-    }
     if (generateTodayQueue()) { switchView('learn'); loadNextWord(); } 
 });
 
@@ -443,7 +437,6 @@ document.getElementById('toggle-hide-meanings')?.addEventListener('change', func
     });
 });
 
-// 挂载到全局，供 HTML 里绑定的 onclick 使用
 window.speakWord = speakWord;
 window.speakSentence = speakSentence;
 window.removeFromNotebook = function(id) { 
