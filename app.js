@@ -1,12 +1,9 @@
-// ================= 全局状态管理 =================
+// ================= 双引擎全局状态管理 =================
 let activeDict = localStorage.getItem('activeDict') || 'cet6'; 
 let currentWordsList = [];
 let learnedWords = [];
 let memoryData = {};
 let errorBook = [];
-
-// ✨ 手机静音解锁神器：全局唯一 Audio 实例
-const audioPlayer = new Audio();
 
 function loadDictData() {
     const prefix = activeDict + '_';
@@ -63,25 +60,39 @@ window.onload = () => {
     updateDashboard(); 
 }
 
-// ================= ✨ 核心：防屏蔽发音引擎 =================
-function playSound(text, isSentence = false) {
-    if (!text) return;
-    audioPlayer.pause();
-    
-    // 使用有道官方接口。因为我们在 HTML 加了隐身代码，这里再也不会被屏蔽了！
-    let url = "";
-    if (isSentence) {
-        url = `https://tts.youdao.com/fanyivoice?word=${encodeURIComponent(text)}&le=eng&keyfrom=speaker-target`;
-    } else {
-        url = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(text)}&type=2`;
+// ================= ✨ 核心：原生系统离线发音引擎 =================
+// 彻底抛弃网易、百度！直接调用电脑 Edge / 苹果 Siri 引擎！不联网、不卡顿！
+function playNativeSound(text) {
+    if (!text || !('speechSynthesis' in window)) {
+        console.log("当前浏览器不支持原生发音");
+        return;
     }
     
-    audioPlayer.src = url;
-    audioPlayer.play().catch(e => console.log("等待用户点击解锁音频"));
+    // 读新句子前，先掐断上一个声音，防止重叠
+    window.speechSynthesis.cancel(); 
+    
+    let msg = new SpeechSynthesisUtterance(text);
+    msg.lang = 'en-US'; // 强制使用美式英语
+    msg.rate = 0.85;    // 语速放慢 15%，完美适合练听力
+    
+    // 针对 Edge 浏览器的优化：优先使用高级 AI 语音
+    let voices = window.speechSynthesis.getVoices();
+    let bestVoice = voices.find(v => v.name.includes('Natural') && v.lang.includes('en-US')) 
+                 || voices.find(v => v.lang === 'en-US');
+    if (bestVoice) {
+        msg.voice = bestVoice;
+    }
+
+    window.speechSynthesis.speak(msg);
 }
 
-window.speakWord = function(text) { playSound(text, false); };
-window.speakSentence = function(text) { playSound(text, true); };
+function safeStopSpeech() { 
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel(); 
+}
+
+window.speakWord = function(text) { playNativeSound(text); };
+window.speakSentence = function(text) { playNativeSound(text); };
+// =================================================================
 
 // ================= 界面控制逻辑 =================
 let studyQueue = []; let currentWord = null; let hintUsedThisTurn = false; let totalTodayTask = 0;
@@ -128,7 +139,7 @@ const views = { home: document.getElementById('view-home'), learn: document.getE
 function switchView(viewName) { 
     Object.values(views).forEach(v => { if(v) v.classList.remove('active'); }); 
     if(views[viewName]) views[viewName].classList.add('active'); 
-    audioPlayer.pause(); 
+    safeStopSpeech(); 
     if(viewName === 'home') updateDashboard(); 
     const bottomBar = document.getElementById('fixed-bottom-bar');
     if(bottomBar) bottomBar.classList.remove('show');
@@ -163,12 +174,18 @@ function updateUI() {
 }
 
 function loadNextWord() {
-    document.getElementById('fixed-bottom-bar').classList.remove('show');
-    document.getElementById('view-learn').style.paddingBottom = '40px';
+    const bottomBar = document.getElementById('fixed-bottom-bar');
+    if(bottomBar) bottomBar.classList.remove('show');
+    const viewLearn = document.getElementById('view-learn');
+    if(viewLearn) viewLearn.style.paddingBottom = '40px';
 
     if (studyQueue.length === 0) {
-        document.getElementById('progress-bar').style.width = '100%';
-        document.getElementById('learning-card').innerHTML = `<div class="card-header" style="padding: 80px 20px;"><div style="font-size:1.8rem; font-weight:800; color:#1c1c1e;">今日目标达成</div><button class="btn-primary" onclick="window.location.reload()" style="margin-top:40px; width:80%;">返回主页</button></div>`;
+        const progressBar = document.getElementById('progress-bar');
+        if(progressBar) progressBar.style.width = '100%';
+        const learningCard = document.getElementById('learning-card');
+        if(learningCard) {
+            learningCard.innerHTML = `<div class="card-header" style="padding: 80px 20px;"><div style="color:#34c759; margin-bottom:20px;"><svg class="sf-icon" style="width:5rem;height:5rem;" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div><div style="font-size:1.8rem; font-weight:800; color:#1c1c1e;">今日目标达成</div><div style="color:#8e8e93; margin-top:10px; font-weight:500; font-size:1.05rem;">记忆神经已重塑完毕！</div><button class="btn-primary" onclick="window.location.reload()" style="margin-top:40px; width:80%;">返回主页</button></div>`;
+        }
         return;
     }
 
@@ -184,46 +201,58 @@ function loadNextWord() {
     const regex = new RegExp(`(${currentWord.word.substring(0,4)}[a-z]*)`, 'gi');
     document.getElementById('detail-cet-text').innerHTML = currentWord.cetSentences.replace(regex, '<span class="highlight">$1</span>');
 
-    document.getElementById('hint-trans').style.display = 'none';
-    document.getElementById('cet-trans').style.display = 'none';
+    const hintTrans = document.getElementById('hint-trans');
+    if(hintTrans) hintTrans.style.display = 'none';
+    const cetTrans = document.getElementById('cet-trans');
+    if(cetTrans) cetTrans.style.display = 'none';
 
-    document.getElementById('hint-container').classList.add('invisible'); 
-    document.getElementById('hint-container').style.position = 'absolute'; 
-    document.getElementById('detail-section').classList.remove('show'); 
-    document.getElementById('detail-section').classList.add('hidden');
-    document.getElementById('main-buttons').classList.remove('hidden');
+    const hintContainer = document.getElementById('hint-container');
+    if(hintContainer) {
+        hintContainer.classList.add('invisible'); 
+        hintContainer.style.position = 'absolute'; 
+    }
+    
+    const detailSec = document.getElementById('detail-section'); 
+    if(detailSec) {
+        detailSec.classList.remove('show'); 
+        detailSec.classList.add('hidden');
+    }
+    
+    const mainBtns = document.getElementById('main-buttons');
+    if(mainBtns) mainBtns.classList.remove('hidden');
 
     const badge = document.getElementById('memory-level-badge');
-    let currentLevel = memoryData[currentId] || 0;
-    badge.innerText = currentLevel > 0 ? `复习 Lv.${currentLevel}` : "新词";
-    badge.className = `level-${currentLevel}`;
-    if (currentLevel === 0 && !learnedWords.includes(currentId)) badge.classList.remove('hidden'); 
-    else if (currentLevel > 0) badge.classList.remove('hidden'); 
-    else badge.classList.add('hidden');
+    if(badge) {
+        let currentLevel = memoryData[currentId] || 0;
+        badge.innerText = currentLevel > 0 ? `复习 Lv.${currentLevel}` : "新词";
+        badge.className = `level-${currentLevel}`;
+        if (currentLevel === 0 && !learnedWords.includes(currentId)) badge.classList.remove('hidden'); 
+        else if (currentLevel > 0) badge.classList.remove('hidden'); 
+        else badge.classList.add('hidden');
+    }
 
     const btnStar = document.getElementById('btn-star');
     if (errorBook.includes(currentId)) btnStar.classList.add('starred'); 
     else btnStar.classList.remove('starred');
 
     updateUI(); 
-    speakWord(currentWord.word);
+    window.speakWord(currentWord.word);
 }
 
-// ✨ 解锁苹果手机静音限制：在点击"开始学习"的一瞬间，强行激活音频
+// ✨ 解锁苹果/电脑浏览器的静音限制：在点击的一瞬间激活底层语音！
 document.getElementById('btn-start-learning')?.addEventListener('click', () => { 
-    audioPlayer.src = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
-    audioPlayer.play().then(() => {
-        if (generateTodayQueue()) { switchView('learn'); loadNextWord(); } 
-    }).catch(()=>{
-        if (generateTodayQueue()) { switchView('learn'); loadNextWord(); } 
-    });
+    if ('speechSynthesis' in window) {
+        let silentMsg = new SpeechSynthesisUtterance('');
+        window.speechSynthesis.speak(silentMsg);
+    }
+    if (generateTodayQueue()) { switchView('learn'); loadNextWord(); } 
 });
 
 document.getElementById('btn-hint')?.addEventListener('click', () => { 
     hintUsedThisTurn = true; 
     document.getElementById('hint-container').classList.remove('invisible'); 
     document.getElementById('hint-container').style.position = 'relative'; 
-    speakSentence(currentWord.hintSentence); 
+    window.speakSentence(currentWord.hintSentence); 
 });
 
 document.getElementById('btn-star')?.addEventListener('click', function() {
@@ -268,17 +297,136 @@ function handleAnswer(action) {
     document.getElementById('fixed-bottom-bar').classList.add('show');
     document.getElementById('view-learn').style.paddingBottom = '110px';
     
-    speakWord(currentWord.word); 
+    window.speakWord(currentWord.word); 
 }
 
 document.getElementById('btn-known')?.addEventListener('click', () => handleAnswer('known'));
 document.getElementById('btn-unknown')?.addEventListener('click', () => handleAnswer('unknown'));
 document.getElementById('btn-next')?.addEventListener('click', () => { loadNextWord(); });
-document.getElementById('btn-speak-word')?.addEventListener('click', () => speakWord(currentWord.word));
-document.getElementById('word-display')?.addEventListener('click', () => speakWord(currentWord.word));
-document.getElementById('btn-speak-hint')?.addEventListener('click', () => speakSentence(currentWord.hintSentence));
-document.getElementById('btn-speak-cet')?.addEventListener('click', () => speakSentence(currentWord.cetSentences));
+document.getElementById('btn-speak-word')?.addEventListener('click', () => window.speakWord(currentWord.word));
+document.getElementById('word-display')?.addEventListener('click', () => window.speakWord(currentWord.word));
+document.getElementById('btn-speak-hint')?.addEventListener('click', () => window.speakSentence(currentWord.hintSentence));
+document.getElementById('btn-speak-cet')?.addEventListener('click', () => window.speakSentence(currentWord.cetSentences));
 document.getElementById('btn-back-home')?.addEventListener('click', () => switchView('home'));
 
-// ======== 解决多处挂载 ========
+document.getElementById('btn-learn-notebook')?.addEventListener('click', () => {
+    if (errorBook.length === 0) return;
+    studyQueue = shuffleArray([...errorBook]); totalTodayTask = studyQueue.length;
+    switchView('learn'); loadNextWord();
+});
+
+document.getElementById('btn-go-notebook')?.addEventListener('click', () => { renderNotebook(); switchView('notebook'); });
+document.getElementById('btn-go-allwords')?.addEventListener('click', () => { 
+    const title = document.getElementById('overview-title');
+    if(title) title.innerText = activeDict === 'cet6' ? '六级词库全景' : '高考词库全景';
+    renderAllWords(); switchView('allwords'); 
+});
+
+function generateListHtml(wordsArr, isHideMode, isLearnedStatus) {
+    let htmlStr = '';
+    const statusClass = isLearnedStatus ? 'status-learned' : 'status-unlearned';
+    const statusText = isLearnedStatus ? '已学' : '未学';
+    
+    wordsArr.forEach(w => {
+        const meaningState = isHideMode ? 'hidden-meaning' : 'hidden-meaning revealed';
+        htmlStr += `
+            <div class="list-item">
+                <div style="flex:1;">
+                    <div class="list-word-row">
+                        <span class="list-word-text">${w.word}</span>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                        <button class="btn-icon-top" style="padding:6px; color:#5e5ce6;" onclick="window.speakWord('${w.word}')">
+                            <svg class="sf-icon" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                        </button>
+                    </div>
+                    <div class="list-meaning ${meaningState}" onclick="this.classList.toggle('revealed')">
+                        <span class="mask-text">
+                            <svg class="sf-icon" style="width:1.1rem;height:1.1rem;" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path></svg>
+                            轻触揭开
+                        </span>
+                        <span class="real-text">${w.pos} ${w.meaning}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    return htmlStr;
+}
+
+function renderNotebook() {
+    const container = document.getElementById('notebook-list-container'); 
+    const emptyTip = document.getElementById('notebook-empty'); 
+    const actionDiv = document.getElementById('notebook-actions');
+    if(!container) return;
+    
+    container.innerHTML = '';
+    if (errorBook.length === 0) { 
+        if(emptyTip) emptyTip.style.display = 'block'; 
+        if(actionDiv) actionDiv.style.display = 'none'; 
+        return; 
+    }
+    if(emptyTip) emptyTip.style.display = 'none'; 
+    if(actionDiv) actionDiv.style.display = 'block';
+
+    const errorWords = currentWordsList.filter(w => errorBook.includes(w.id));
+    errorWords.forEach(w => {
+        const div = document.createElement('div'); div.className = 'list-item';
+        div.innerHTML = `
+            <div style="flex:1;">
+                <div class="list-word-row">
+                    <span class="list-word-text">${w.word}</span>
+                    <button class="btn-icon-top" style="padding:6px; color:#5e5ce6;" onclick="window.speakWord('${w.word}')">
+                        <svg class="sf-icon" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                    </button>
+                </div>
+                <div class="list-meaning hidden-meaning" onclick="this.classList.toggle('revealed')">
+                    <span class="mask-text">
+                        <svg class="sf-icon" style="width:1.1rem;height:1.1rem;" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path></svg>
+                        轻触揭开
+                    </span>
+                    <span class="real-text">${w.pos} ${w.meaning}</span>
+                </div>
+            </div>
+            <button class="btn-remove-nb" onclick="removeFromNotebook(${w.id})"><svg class="sf-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function renderAllWords() {
+    const container = document.getElementById('all-words-list-container');
+    if(!container) return;
+    
+    const toggle = document.getElementById('toggle-hide-meanings');
+    const isHideMode = toggle ? toggle.checked : false;
+    
+    let learnedArr = []; let unlearnedArr = [];
+    currentWordsList.forEach(w => { if (learnedWords.includes(w.id)) { learnedArr.push(w); } else { unlearnedArr.push(w); } });
+
+    let finalHtml = '';
+    if (unlearnedArr.length > 0) {
+        finalHtml += `<div class="list-section-title">待学词汇 (${unlearnedArr.length})</div>`;
+        finalHtml += generateListHtml(unlearnedArr, isHideMode, false);
+    }
+    if (learnedArr.length > 0) {
+        finalHtml += `<div class="list-section-title" style="margin-top: 15px;">已掌握 (${learnedArr.length})</div>`;
+        finalHtml += generateListHtml(learnedArr, isHideMode, true);
+    }
+    container.innerHTML = finalHtml;
+}
+
+document.getElementById('toggle-hide-meanings')?.addEventListener('change', function() {
+    const isHideMode = this.checked;
+    const meanings = document.querySelectorAll('#all-words-list-container .list-meaning');
+    meanings.forEach(m => {
+        if (isHideMode) { m.classList.remove('revealed'); } 
+        else { m.classList.add('revealed'); }
+    });
+});
+
 window.translateText = translateText;
+window.removeFromNotebook = function(id) { 
+    errorBook = errorBook.filter(wId => wId !== id); 
+    saveDictData(); 
+    renderNotebook(); 
+};
